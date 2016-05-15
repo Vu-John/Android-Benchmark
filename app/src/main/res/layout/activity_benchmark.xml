@@ -7,10 +7,42 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="@color/colorBackground"
     tools:context="com.vucode.androidbenchmark.Benchmark">
 
+    <ImageView
+        android:id="@+id/cpu"
+        android:layout_width="wrap_content"
+        android:layout_height="250dp"
+        android:src="@drawable/cpu" />
+
     <TextView
+        android:id="@+id/result"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!" />
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="100dp"
+        android:layout_below="@+id/cpu"
+        android:textColor="@color/colorText"
+        android:textSize="15dp"
+        android:text="@string/output" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="30dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="5dp"
+        android:textColor="@color/colorText"
+        android:textSize="20dp"
+        android:text="@string/beginText"
+        android:onClick="onBeginClick" />
 </RelativeLayout>
+

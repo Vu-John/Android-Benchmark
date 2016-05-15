@@ -25,10 +25,13 @@ public class Benchmark extends AppCompatActivity {
     private String MD5Value;
     private Long totalTimeSHA;
     private Long totalTimeMD5;
+    private Long totalTimeCrack;
     private Integer jobsDone;
+    private Integer pin;
 
+    private Integer numOfDigits = 7;
     private Integer numOfTimesToCompute = 20000;
-    private Integer numOfJobs = 2;
+    private Integer numOfJobs = 3;
 
     // Handler for SHA-1
     Handler handlerSHA = new Handler() {
@@ -54,6 +57,19 @@ public class Benchmark extends AppCompatActivity {
         }
     };
 
+    // Handler for crack
+    Handler handlerCrack = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            jobsDone++;
+            totalTimeCrack = (Long) msg.obj;
+            if (jobsDone == numOfJobs) {
+                printResults();
+            }
+
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,11 +84,12 @@ public class Benchmark extends AppCompatActivity {
     public void printResults() {
         String testAgain = getResources().getString(R.string.testAgain);
         compute.setText(testAgain);
-        Long average = (totalTimeSHA + totalTimeMD5) / numOfJobs;
+        Long average = (totalTimeSHA + totalTimeMD5 + totalTimeCrack) / numOfJobs;
         // Divide average time by 100,000,000 to get a reasonable number
         Integer score = Math.round(average / 100000000);
         result.setText("SHA-1 Time Taken: " + totalTimeSHA.toString() + " ns" +
-                "\nMD5 Time Taken: " + totalTimeMD5.toString() + " ns" +
+                "\nMD5 Time Taken: " + totalTimeMD5.toString() + " ns" + "\nCrack " +
+                numOfDigits + " Digit PIN Time Taken: " + totalTimeCrack.toString()+ " ns" +
                 "\n \nScore: " + score.toString());
     }
 
@@ -82,6 +99,7 @@ public class Benchmark extends AppCompatActivity {
         computeSHAHash(textHash);
         computeMD5Hash(textHash);
         compute.setText("CALCULATING");
+        crackPIN();
     }
 
     //
@@ -163,6 +181,45 @@ public class Benchmark extends AppCompatActivity {
                 msg.obj = ttLong2;
                 msg.setTarget(handlerMD5);
                 msg.sendToTarget();
+
+            }
+        };
+
+        Thread newThread = new Thread(r);
+        newThread.start();
+    }
+
+    //
+    // Crack an n digit PIN using brute force
+    //
+
+    // Generate max n digit pin to crack
+    public void nDigitPIN() {
+        Integer decimalPlace = 1;
+        pin = 0;
+        for (Integer i = 0; i < numOfDigits; i++) {
+            pin += 9 * decimalPlace;
+            decimalPlace *= 10;
+        }
+    }
+
+    // Crack a PIN through brute force method
+    public void crackPIN() {
+        Runnable r = new Runnable() {
+            public void run() {
+                Long tsLong3 = System.nanoTime();
+                Integer successfulPIN = 0;
+                nDigitPIN();
+                for (Integer i = 0; i < pin; i++) {
+                    successfulPIN = i;
+                }
+                Long ttLong3 = System.nanoTime() - tsLong3;
+                Message msg = Message.obtain();
+                msg.obj = ttLong3;
+                msg.setTarget(handlerCrack);
+                if (successfulPIN != 0) {
+                    msg.sendToTarget();
+                }
 
             }
         };
